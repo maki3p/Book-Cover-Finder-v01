@@ -1,0 +1,5 @@
+{
+  "name": "Book Cover Finder",
+  "description": "An application to find book covers by searching via title, author, or ISBN, powered by the Gemini API.",
+  "requestFramePermissions": []
+}
