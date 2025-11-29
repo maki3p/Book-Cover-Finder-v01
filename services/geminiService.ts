@@ -4,6 +4,8 @@ interface OpenLibraryDoc {
   title: string;
   author_name?: string[];
   cover_i?: number;
+  first_publish_year?: number;
+  subject?: string[];
 }
 
 interface OpenLibraryResponse {
@@ -15,13 +17,14 @@ interface FindBookCoversParams {
     title?: string;
     author?: string;
     isbn?: string;
+    subject?: string;
     searchType: SearchType;
 }
 
 const API_BASE_URL = 'https://openlibrary.org/search.json';
 const COVER_BASE_URL = 'https://covers.openlibrary.org/b/id';
 
-export const findBookCovers = async ({ title, author, isbn, searchType }: FindBookCoversParams): Promise<Book[]> => {
+export const findBookCovers = async ({ title, author, isbn, subject, searchType }: FindBookCoversParams): Promise<Book[]> => {
   const params = new URLSearchParams({
     limit: '24', // Fetch more results initially to filter down to ones with covers
   });
@@ -29,8 +32,12 @@ export const findBookCovers = async ({ title, author, isbn, searchType }: FindBo
   if (searchType === SearchType.TitleAuthor) {
     if (title) params.set('title', title);
     if (author) params.set('author', author);
+  } else if (searchType === SearchType.Author) {
+    if (author) params.set('author', author);
   } else if (searchType === SearchType.ISBN) {
     if (isbn) params.set('isbn', isbn);
+  } else if (searchType === SearchType.Subject) {
+    if (subject) params.set('subject', subject);
   }
 
   const url = `${API_BASE_URL}?${params.toString()}`;
@@ -48,6 +55,8 @@ export const findBookCovers = async ({ title, author, isbn, searchType }: FindBo
         title: doc.title,
         authors: doc.author_name || ['Unknown Author'],
         coverImageUrl: `${COVER_BASE_URL}/${doc.cover_i}-L.jpg`,
+        firstPublishYear: doc.first_publish_year,
+        subjects: doc.subject ? doc.subject.slice(0, 3) : [], // Take the top 3 subjects/genres
       }))
       .slice(0, 12); // Limit to 12 results for a clean UI
 

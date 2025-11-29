@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [isbn, setIsbn] = useState('');
+  const [subject, setSubject] = useState('');
   const [searchType, setSearchType] = useState<SearchType>(SearchType.TitleAuthor);
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,8 +23,16 @@ const App: React.FC = () => {
       setError("Please enter a title to search.");
       return;
     }
+    if (searchType === SearchType.Author && !author.trim()) {
+        setError("Please enter an author name to search.");
+        return;
+    }
     if (searchType === SearchType.ISBN && !isbn.trim()) {
       setError("Please enter an ISBN to search.");
+      return;
+    }
+    if (searchType === SearchType.Subject && !subject.trim()) {
+      setError("Please enter a genre to search.");
       return;
     }
     
@@ -33,7 +42,7 @@ const App: React.FC = () => {
     setBooks([]);
 
     try {
-      const results = await findBookCovers({ title, author, isbn, searchType });
+      const results = await findBookCovers({ title, author, isbn, subject, searchType });
       setBooks(results);
       if (results.length === 0) {
         setError("No books found for your query. Try a different search.");
@@ -43,7 +52,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [title, author, isbn, searchType]);
+  }, [title, author, isbn, subject, searchType]);
   
   const renderContent = () => {
     if (isLoading) {
@@ -73,7 +82,7 @@ const App: React.FC = () => {
         return (
             <div className="text-center py-20">
                 <p className="text-xl text-gray-400">Ready to find some books?</p>
-                <p className="text-gray-500">Use the search bar above to find books by title/author or ISBN.</p>
+                <p className="text-gray-500">Use the search bar above to find books by title, author, ISBN, or genre.</p>
             </div>
         );
     }
@@ -93,6 +102,8 @@ const App: React.FC = () => {
             setAuthor={setAuthor}
             isbn={isbn}
             setIsbn={setIsbn}
+            subject={subject}
+            setSubject={setSubject}
             searchType={searchType}
             setSearchType={setSearchType}
             onSearch={handleSearch}

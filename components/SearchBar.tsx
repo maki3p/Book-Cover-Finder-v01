@@ -8,6 +8,8 @@ interface SearchBarProps {
   setAuthor: (author: string) => void;
   isbn: string;
   setIsbn: (isbn: string) => void;
+  subject: string;
+  setSubject: (subject: string) => void;
   searchType: SearchType;
   setSearchType: (type: SearchType) => void;
   onSearch: () => void;
@@ -34,6 +36,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   setAuthor,
   isbn,
   setIsbn,
+  subject,
+  setSubject,
   searchType,
   setSearchType,
   onSearch,
@@ -46,36 +50,56 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }
   };
 
-  const isSearchDisabled = isLoading || (searchType === SearchType.TitleAuthor && !title.trim()) || (searchType === SearchType.ISBN && !isbn.trim());
+  const isSearchDisabled = isLoading || 
+    (searchType === SearchType.TitleAuthor && !title.trim()) || 
+    (searchType === SearchType.Author && !author.trim()) ||
+    (searchType === SearchType.ISBN && !isbn.trim()) ||
+    (searchType === SearchType.Subject && !subject.trim());
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
       <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 shadow-lg">
-        <div className="flex items-center border-b border-gray-700 pb-3 mb-4">
+        <div className="flex flex-wrap items-center border-b border-gray-700 pb-3 mb-4 gap-y-2">
           <h2 className="text-sm font-medium text-gray-400 mr-4">Search by:</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto">
             <button
               onClick={() => setSearchType(SearchType.TitleAuthor)}
-              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 ${
+              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 whitespace-nowrap ${
                 searchType === SearchType.TitleAuthor ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              Title / Author
+              Title
+            </button>
+             <button
+              onClick={() => setSearchType(SearchType.Author)}
+              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 whitespace-nowrap ${
+                searchType === SearchType.Author ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Author
             </button>
             <button
               onClick={() => setSearchType(SearchType.ISBN)}
-              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 ${
+              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 whitespace-nowrap ${
                 searchType === SearchType.ISBN ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
               ISBN
+            </button>
+            <button
+              onClick={() => setSearchType(SearchType.Subject)}
+              className={`px-4 py-2 text-sm rounded-md transition-colors duration-200 whitespace-nowrap ${
+                searchType === SearchType.Subject ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Genre
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex-grow">
-            {searchType === SearchType.TitleAuthor ? (
+            {searchType === SearchType.TitleAuthor && (
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
@@ -98,7 +122,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   aria-label="Author"
                 />
               </div>
-            ) : (
+            )}
+            
+            {searchType === SearchType.Author && (
+              <input
+                type="text"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Author Name (e.g., Isaac Asimov)"
+                className="w-full bg-gray-900/50 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 px-4 py-3 transition-colors"
+                disabled={isLoading}
+                aria-label="Author Name"
+              />
+            )}
+
+            {searchType === SearchType.ISBN && (
               <input
                 type="text"
                 value={isbn}
@@ -108,6 +147,19 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 className="w-full bg-gray-900/50 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 px-4 py-3 transition-colors"
                 disabled={isLoading}
                 aria-label="ISBN"
+              />
+            )}
+
+            {searchType === SearchType.Subject && (
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Genre (e.g., Science Fiction, Romance, History)"
+                className="w-full bg-gray-900/50 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 px-4 py-3 transition-colors"
+                disabled={isLoading}
+                aria-label="Genre"
               />
             )}
           </div>

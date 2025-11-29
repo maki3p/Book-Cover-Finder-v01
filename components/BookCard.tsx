@@ -129,6 +129,19 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="text-md font-bold text-white truncate group-hover:text-indigo-400 transition-colors" title={book.title}>{book.title}</h3>
         <p className="text-sm text-gray-400 mt-1 truncate" title={book.authors.join(', ')}>{book.authors.join(', ')}</p>
+        
+        {book.firstPublishYear && (
+             <p className="text-xs text-gray-500 mt-2">
+                Released: <span className="text-gray-400">{book.firstPublishYear}</span>
+             </p>
+        )}
+        
+        {book.subjects && book.subjects.length > 0 && (
+            <p className="text-xs text-gray-500 mt-1 truncate" title={book.subjects.join(', ')}>
+                <span className="text-gray-600 mr-1">Genre:</span>
+                {book.subjects.join(', ')}
+            </p>
+        )}
       </div>
     </div>
   );
