@@ -1,4 +1,5 @@
 import { Book, SearchType } from '../types';
+import { GoogleGenAI } from "@google/genai";
 
 interface OpenLibraryDoc {
   title: string;
@@ -56,7 +57,7 @@ export const findBookCovers = async ({ title, author, isbn, subject, searchType 
         authors: doc.author_name || ['Unknown Author'],
         coverImageUrl: `${COVER_BASE_URL}/${doc.cover_i}-L.jpg`,
         firstPublishYear: doc.first_publish_year,
-        subjects: doc.subject ? doc.subject.slice(0, 3) : [], // Take the top 3 subjects/genres
+        subjects: doc.subject ? doc.subject.slice(0, 40) : [], // Fetch more subjects for the details popup
       }))
       .slice(0, 12); // Limit to 12 results for a clean UI
 
@@ -68,5 +69,19 @@ export const findBookCovers = async ({ title, author, isbn, subject, searchType 
         throw new Error(`Failed to find book covers: ${error.message}`);
     }
     throw new Error("An unknown error occurred while finding book covers.");
+  }
+};
+
+export const getBookPlot = async (title: string, author: string): Promise<string> => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `Provide a compelling and concise plot summary (max 120 words) for the book "${title}" by ${author}. Do not include major spoilers.`,
+    });
+    return response.text || "No plot summary available.";
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    return "Could not retrieve plot summary at this time. Please try again later.";
   }
 };
